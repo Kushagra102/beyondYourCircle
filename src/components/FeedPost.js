@@ -7,13 +7,19 @@ import {
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
 
 const FeedPost = ({ post }) => {
+  const navigation = useNavigation();
   const [isLiked, setIsLiked] = useState(false);
+
   return (
     <View style={styles.post}>
       {/* Post Header */}
-      <View style={styles.header}>
+      <Pressable
+        style={styles.header}
+        onPress={() => navigation.navigate("Profile", { id: post.User.id })}
+      >
         <Image source={{ uri: post.User.image }} style={styles.profileImage} />
         <View>
           <Text style={styles.name}>{post.User.name}</Text>
@@ -25,7 +31,7 @@ const FeedPost = ({ post }) => {
           color="gray"
           style={styles.icon}
         />
-      </View>
+      </Pressable>
 
       {/* Post body */}
 
@@ -52,9 +58,9 @@ const FeedPost = ({ post }) => {
         </View>
 
         <View style={styles.buttonsRow}>
-          <Pressable 
-          style={styles.iconButton}
-          onPress={() => setIsLiked(!isLiked)}
+          <Pressable
+            style={styles.iconButton}
+            onPress={() => setIsLiked(!isLiked)}
           >
             <AntDesign
               name="like2"

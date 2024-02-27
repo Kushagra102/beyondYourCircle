@@ -2,6 +2,7 @@ import { View, Text, StyleSheet, Image, TextInput, Button } from "react-native";
 import { useState } from "react";
 import { Entypo } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
+import { useNavigation } from "@react-navigation/native";
 
 const user = {
   id: "u1",
@@ -13,10 +14,12 @@ const user = {
 const CreatePostScreen = () => {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const navigation = useNavigation()
 
   const onSubmit = () => {
     console.warn("Post Submitted", description);
     setDescription("");
+    navigation.goBack()
   };
 
   const pickImage = async () => {
@@ -67,7 +70,6 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     padding: 10,
-    paddingTop: 35,
     backgroundColor: "white",
   },
   header: {
