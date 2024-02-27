@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-beyondyourcircle-staging-203020-authRole",
+      "UnauthRoleArn": "arn:aws:iam::960973510166:role/amplify-beyondyourcircle-staging-203020-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::960973510166:role/amplify-beyondyourcircle-staging-203020-authRole",
+      "Region": "ap-south-1",
+      "DeploymentBucketName": "amplify-beyondyourcircle-staging-203020-deployment",
+      "UnauthRoleName": "amplify-beyondyourcircle-staging-203020-unauthRole",
+      "StackName": "amplify-beyondyourcircle-staging-203020",
+      "StackId": "arn:aws:cloudformation:ap-south-1:960973510166:stack/amplify-beyondyourcircle-staging-203020/06bf7db0-d5af-11ee-bbad-0ac796513385",
+      "AmplifyAppId": "d27yyx15ce8kid"
+    },
+    "categories": {
+      "auth": {
+        "beyondYourCircle": {}
+      }
+    }
+  }
+}
