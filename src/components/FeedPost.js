@@ -12,17 +12,22 @@ import { useNavigation } from "@react-navigation/native";
 const FeedPost = ({ post }) => {
   const navigation = useNavigation();
   const [isLiked, setIsLiked] = useState(false);
-
+  
   return (
     <View style={styles.post}>
       {/* Post Header */}
       <Pressable
         style={styles.header}
-        onPress={() => navigation.navigate("Profile", { id: post.User.id })}
+        onPress={() =>
+          navigation.navigate("Profile", { id: post?.User?._j?.id })
+        }
       >
-        <Image source={{ uri: post.User.image }} style={styles.profileImage} />
+        <Image
+          source={{ uri: post?.User?._j?.image }}
+          style={styles.profileImage}
+        />
         <View>
-          <Text style={styles.name}>{post.User.name}</Text>
+          <Text style={styles.name}>{post?.User?._j?.name}</Text>
           <Text style={styles.subtitle}>{post.createdAt}</Text>
         </View>
         <Entypo

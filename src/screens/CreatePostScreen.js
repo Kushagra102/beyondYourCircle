@@ -3,6 +3,9 @@ import { useState } from "react";
 import { Entypo } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
+import { DataStore } from "@aws-amplify/datastore";
+import { Post } from "../models";
+import { Auth } from "aws-amplify";
 
 const user = {
   id: "u1",
@@ -14,12 +17,24 @@ const user = {
 const CreatePostScreen = () => {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
-  const onSubmit = () => {
-    console.warn("Post Submitted", description);
+  const onSubmit = async () => {
+    const userData = await Auth.currentAuthenticatedUser();
+
+    const newPost = new Post({
+      description,
+      // image
+      numberOfLikes: 0,
+      numberOfShares: 0,
+      postUserId: userData.attributes.sub,
+      _version: 1,
+    });
+
+    await DataStore.save(newPost);
+
     setDescription("");
-    navigation.goBack()
+    navigation.goBack();
   };
 
   const pickImage = async () => {
