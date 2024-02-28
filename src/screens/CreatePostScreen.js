@@ -1,23 +1,36 @@
 import { View, Text, StyleSheet, Image, TextInput, Button } from "react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Entypo } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { DataStore } from "@aws-amplify/datastore";
-import { Post } from "../models";
+import { Post, User } from "../models";
 import { Auth } from "aws-amplify";
 
-const user = {
-  id: "u1",
-  image:
-    "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/vadim.jpg",
-  name: "Plarck Cacil",
-};
+const dummy_img =
+  "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
+
 
 const CreatePostScreen = () => {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const [user, setUser] = useState()
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await Auth.currentAuthenticatedUser();
+      const dbUser = await DataStore.query(User, userData.attributes.sub);
+      if (dbUser) {
+        setUser(dbUser);
+        console.log(dbUser);
+      } else {
+        navigation.navigate("Update profile");
+      }
+    };
+  
+    fetchUser();
+  }, [])
 
   const onSubmit = async () => {
     const userData = await Auth.currentAuthenticatedUser();
@@ -55,8 +68,8 @@ const CreatePostScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image source={{ uri: user.image }} style={styles.profileImage} />
-        <Text style={styles.name}>{user.name}</Text>
+        <Image source={{ uri: user?.image || dummy_img }} style={styles.profileImage} />
+        <Text style={styles.name}>{user?.name}</Text>
         <Entypo
           onPress={pickImage}
           name="images"
