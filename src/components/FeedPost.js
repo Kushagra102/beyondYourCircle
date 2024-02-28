@@ -15,13 +15,14 @@ import { DataStore } from "aws-amplify";
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
 
-const FeedPost = ({ post, user }) => {
+const FeedPost = ({ post }) => {
   const navigation = useNavigation();
   const [isLiked, setIsLiked] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchDetails = async () => {
-      await DataStore.query(User, post.postUserId);
+      await DataStore.query(User, post.postUserId).then(setUser);
     };
     fetchDetails();
   }, []);
@@ -33,15 +34,13 @@ const FeedPost = ({ post, user }) => {
         style={styles.header}
         onPress={() => navigation.navigate("Profile", { id: post.postUserId })}
       >
-        {user?.image || post?.User?._j?.image ? (
-          <S3Image imgKey={user?.image || post?.User?._j?.image} style={styles.profileImage} />
+        {user?.image ? (
+          <S3Image imgKey={user?.image} style={styles.profileImage} />
         ) : (
           <Image source={{ uri: dummy_img }} style={styles.profileImage} />
         )}
         <View>
-          <Text style={styles.name}>
-            {user ? user?.name : post?.User?._j?.name}
-          </Text>
+          <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.subtitle}>{post.createdAt}</Text>
         </View>
         <Entypo

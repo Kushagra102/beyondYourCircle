@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import FeedPost from "../components/FeedPost";
 import { Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { DataStore } from "aws-amplify";
+import { DataStore, Predicates, SortDirection } from "aws-amplify";
 import { Post } from "../models";
 
 const img =
@@ -14,15 +14,14 @@ const FeedScreen = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchData = async () => {
-      const postData = await DataStore.query(Post);
-      setPosts(postData);
-    };
-    
-    fetchData();
+    const subscription = DataStore.observeQuery(Post, Predicates.ALL, {
+      sort: (s) => s.createdAt(SortDirection.DESCENDING),
+    }).subscribe(({ items }) => setPosts(items));
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  console.log(posts)
+  console.log(posts);
   const createPost = () => {
     navigation.navigate("Create Post");
   };

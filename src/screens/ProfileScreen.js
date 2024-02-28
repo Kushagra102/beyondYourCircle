@@ -18,7 +18,7 @@ import {
   Ionicons,
   Entypo,
 } from "@expo/vector-icons";
-import { Auth } from "aws-amplify";
+import { Auth, SortDirection } from "aws-amplify";
 import { DataStore } from "aws-amplify";
 import { User, Post } from "../models";
 import { useState, useEffect } from "react";
@@ -116,7 +116,7 @@ const ProfileScreen = () => {
     const fetchData = async () => {
       const userData = await Auth.currentAuthenticatedUser();
       const userId = route?.params?.id || userData.attributes.sub;
-      
+
       if (!userId) {
         return;
       }
@@ -125,8 +125,8 @@ const ProfileScreen = () => {
 
       const dbUser = await DataStore.query(User, userId);
       if (!dbUser) {
-        if(isMe){
-          navigation.navigate("Update Profile")
+        if (isMe) {
+          navigation.navigate("Update Profile");
         } else {
           Alert.alert("User not found");
         }
@@ -134,14 +134,21 @@ const ProfileScreen = () => {
         setUser(dbUser);
       }
 
-      const dbPosts = await DataStore.query(Post, (p) =>
-        p.postUserId.eq(userId)
-      );
-      if (!dbPosts) {
-        Alert.alert("Post not found");
-      } else {
-        setPosts(dbPosts);
-      }
+      const subscription = DataStore.observeQuery(
+        Post,
+        (p) => p.postUserId.eq(userId),
+        {
+          sort: (s) => s.createdAt(SortDirection.DESCENDING),
+        }
+      ).subscribe(({ items }) => {
+        if (items.length === 0) {
+          Alert.alert("Post not found");
+        } else {
+          setPosts(items);
+        }
+      });
+      
+      return () => subscription.unsubscribe();
     };
 
     fetchData();
@@ -152,7 +159,7 @@ const ProfileScreen = () => {
   return (
     <FlatList
       data={posts}
-      renderItem={({ item }) => <FeedPost post={item} user={user} />}
+      renderItem={({ item }) => <FeedPost post={item} />}
       showsVerticalScrollIndicator={false}
       ListHeaderComponent={() => (
         <>
@@ -170,6 +177,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     alignItems: "center",
     padding: 10,
+    marginBottom: 7
   },
   bg: {
     width: "100%",
