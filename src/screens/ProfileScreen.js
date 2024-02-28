@@ -22,6 +22,7 @@ import { Auth } from "aws-amplify";
 import { DataStore } from "aws-amplify";
 import { User, Post } from "../models";
 import { useState, useEffect } from "react";
+import { S3Image } from "aws-amplify-react-native";
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
@@ -44,7 +45,7 @@ const ProfileScreenHeader = ({ user, isMe = false }) => {
   return (
     <View style={styles.container}>
       <Image source={{ uri: bg }} style={styles.bg} />
-      <Image source={{ uri: user?.image || dummy_img }} style={styles.image} />
+      <S3Image imgKey={user?.image || dummy_img} style={styles.image} />
 
       <Text style={styles.name}>{user.name}</Text>
 

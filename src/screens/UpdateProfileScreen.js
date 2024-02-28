@@ -13,6 +13,10 @@ import { API, graphqlOperation, Auth } from "aws-amplify";
 import { DataStore } from "aws-amplify";
 import { User } from "../models";
 import { useNavigation } from "@react-navigation/native";
+import { Storage } from "aws-amplify";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
+import { S3Image } from "aws-amplify-react-native";
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
@@ -71,9 +75,17 @@ const UpdateProfileScreen = () => {
   };
 
   const updateUser = async () => {
+    let imgKey = "";
+    if (image) {
+      imgKey = await uploadFile(image);
+    }
+
     await DataStore.save(
       User.copyOf(user, (update) => {
         update.name = name;
+        if (imgKey) {
+          update.image = imgKey;
+        }
       })
     );
   };
@@ -81,14 +93,15 @@ const UpdateProfileScreen = () => {
   const createUserFn = async () => {
     try {
       const userData = await Auth.currentAuthenticatedUser();
-      console.log(userData)
-      console.log(name)
       const newUser = {
         id: userData.attributes.sub,
         name,
         _version: 1,
       };
-      console.log(newUser)
+
+      if (image) {
+        newUser.image = await uploadFile(image);
+      }
 
       await API.graphql(graphqlOperation(createUser, { input: newUser }));
     } catch (e) {
@@ -96,13 +109,31 @@ const UpdateProfileScreen = () => {
     }
   };
 
+  const uploadFile = async (fileUri) => {
+    try {
+      const response = await fetch(fileUri);
+      const blob = await response.blob();
+      const key = `${uuidv4()}.png`;
+      await Storage.put(key, blob, {
+        contentType: "image/png",
+      });
+      return key;
+    } catch (err) {
+      console.log("Error uploading file:", err);
+    }
+  };
+
+  let renderImage = <Image source={{ uri: dummy_img }} style={styles.image} />;
+  if (image) {
+    renderImage = <Image source={{ uri: image }} style={styles.image} />;
+  } else if (user?.image) {
+    renderImage = <S3Image imgKey={user.image} style={styles.image} />;
+  }
+
   return (
     <View style={styles.container}>
       <Pressable onPress={pickImage} style={styles.imagePickerContainer}>
-        <Image
-          source={{ uri: image || user?.image || dummy_img }}
-          style={styles.image}
-        />
+        {renderImage}
         <Text>Change photo</Text>
       </Pressable>
 

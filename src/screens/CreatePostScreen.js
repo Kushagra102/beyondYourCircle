@@ -7,19 +7,17 @@ import { DataStore } from "@aws-amplify/datastore";
 import { Post, User } from "../models";
 import { Auth } from "aws-amplify";
 import { Storage } from "aws-amplify";
-import "react-native-get-random-values"
+import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
-
-
+import { S3Image } from "aws-amplify-react-native";
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
 
-
 const CreatePostScreen = () => {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState("");
-  const [user, setUser] = useState()
+  const [user, setUser] = useState();
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -33,27 +31,27 @@ const CreatePostScreen = () => {
         navigation.navigate("Update Profile");
       }
     };
-  
+
     fetchUser();
-  }, [])
+  }, []);
 
   const onSubmit = async () => {
     const userData = await Auth.currentAuthenticatedUser();
 
-    const newPost = ({
+    const newPost = {
       description: description,
       // image
       numberOfLikes: 0,
       numberOfShares: 0,
       postUserId: userData.attributes.sub,
       _version: 1,
-    });
+    };
 
     if (image) {
       newPost.image = await uploadFile(image);
     }
 
-    const genPost = new Post(newPost)
+    const genPost = new Post(newPost);
 
     await DataStore.save(genPost);
     setDescription("");
@@ -72,32 +70,32 @@ const CreatePostScreen = () => {
     console.log(result);
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImage(result?.assets[0]?.uri);
     }
   };
 
   const uploadFile = async (fileUri) => {
     try {
-      console.log(fileUri)
       const response = await fetch(fileUri);
-      console.log(response)
       const blob = await response.blob();
-      console.log(blob)
       const key = `${uuidv4()}.png`;
-      console.log(key)
       await Storage.put(key, blob, {
-        contentType: "image/png", // contentType is optional
+        contentType: "image/png",
       });
       return key;
     } catch (err) {
       console.log("Error uploading file:", err);
     }
-  }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image source={{ uri: user?.image || dummy_img }} style={styles.profileImage} />
+        {user?.image ? (
+          <S3Image imgKey={user.image} style={styles.profileImage} />
+        ) : (
+          <Image source={{ uri: dummy_img }} style={styles.profileImage} />
+        )}
         <Text style={styles.name}>{user?.name || "Plarck Cacil"}</Text>
         <Entypo
           onPress={pickImage}

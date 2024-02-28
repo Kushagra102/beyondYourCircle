@@ -6,16 +6,25 @@ import {
   FontAwesome5,
   MaterialCommunityIcons,
 } from "@expo/vector-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
+import { S3Image } from "aws-amplify-react-native";
+import { User } from "../models";
+import { DataStore } from "aws-amplify";
 
 const dummy_img =
   "https://notjustdev-dummy.s3.us-east-2.amazonaws.com/avatars/user.png";
 
-
 const FeedPost = ({ post, user }) => {
   const navigation = useNavigation();
   const [isLiked, setIsLiked] = useState(false);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
+      await DataStore.query(User, post.postUserId);
+    };
+    fetchDetails();
+  }, []);
 
   return (
     <View style={styles.post}>
@@ -24,12 +33,15 @@ const FeedPost = ({ post, user }) => {
         style={styles.header}
         onPress={() => navigation.navigate("Profile", { id: post.postUserId })}
       >
-        <Image
-          source={{ uri: user?.image || post?.User?._j?.image || dummy_img}}
-          style={styles.profileImage}
-        />
+        {user?.image || post?.User?._j?.image ? (
+          <S3Image imgKey={user?.image || post?.User?._j?.image} style={styles.profileImage} />
+        ) : (
+          <Image source={{ uri: dummy_img }} style={styles.profileImage} />
+        )}
         <View>
-          <Text style={styles.name}>{user ? user?.name : post?.User?._j?.name}</Text>
+          <Text style={styles.name}>
+            {user ? user?.name : post?.User?._j?.name}
+          </Text>
           <Text style={styles.subtitle}>{post.createdAt}</Text>
         </View>
         <Entypo
@@ -47,11 +59,7 @@ const FeedPost = ({ post, user }) => {
       )}
 
       {post.image && (
-        <Image
-          source={{ uri: post.image }}
-          style={styles.image}
-          resizeMode="cover"
-        />
+        <S3Image imgKey={post.image} style={styles.image} resizeMode="cover" />
       )}
 
       {/* Post footer */}
