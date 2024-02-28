@@ -22,6 +22,7 @@ const FeedScreen = () => {
     fetchData();
   }, []);
 
+  console.log(posts)
   const createPost = () => {
     navigation.navigate("Create Post");
   };

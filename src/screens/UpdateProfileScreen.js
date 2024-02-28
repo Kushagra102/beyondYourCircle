@@ -35,7 +35,7 @@ const UpdateProfileScreen = () => {
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
   const [user, setUser] = useState(null);
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -43,7 +43,7 @@ const UpdateProfileScreen = () => {
 
       const dbUser = await DataStore.query(User, userData.attributes.sub);
       setUser(dbUser);
-      setName(dbUser.name);
+      setName(dbUser?.name);
     };
     fetchUser();
   }, []);
@@ -63,28 +63,37 @@ const UpdateProfileScreen = () => {
 
   const onSave = async () => {
     if (user) {
-      await updateUser()
+      await updateUser();
     } else {
-      await createUser()
+      await createUserFn();
     }
-    navigation.goBack()
+    navigation.goBack();
   };
 
-  const updateUser = async() => {
-    await DataStore.save(User.copyOf(user, (update) => {
-      update.name = name
-    }))
-  }
+  const updateUser = async () => {
+    await DataStore.save(
+      User.copyOf(user, (update) => {
+        update.name = name;
+      })
+    );
+  };
 
-  const createuser = async () => {
-    const userData = await Auth.currentAuthenticatedUser();
-    const newUser = {
-      id: userData.attributes.sub,
-      name,
-      _version: 1,
-    };
+  const createUserFn = async () => {
+    try {
+      const userData = await Auth.currentAuthenticatedUser();
+      console.log(userData)
+      console.log(name)
+      const newUser = {
+        id: userData.attributes.sub,
+        name,
+        _version: 1,
+      };
+      console.log(newUser)
 
-    await API.graphql(graphqlOperation(createUser, { input: newUser }));
+      await API.graphql(graphqlOperation(createUser, { input: newUser }));
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

@@ -1,0 +1,14 @@
+{
+  "resourceName": "s3beyondyourcirclestorage48fe0d4a",
+  "bucketName": "beyondyourcircle-storage-48fe0d4a",
+  "policyUUID": "296c2e34",
+  "storageAccess": "authAndGuest",
+  "guestAccess": [
+    "READ"
+  ],
+  "authAccess": [
+    "CREATE_AND_UPDATE",
+    "READ",
+    "DELETE"
+  ]
+}
