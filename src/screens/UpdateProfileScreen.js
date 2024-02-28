@@ -71,7 +71,7 @@ const UpdateProfileScreen = () => {
     } else {
       await createUserFn();
     }
-    navigation.goBack();
+    navigation.replace("Feed");
   };
 
   const updateUser = async () => {
